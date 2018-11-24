@@ -1,6 +1,6 @@
 # wireguard
 1、wireguard多用户脚本
-
+wget -qO- https://raw.githubusercontent.com/zxlhhyccc/wireguard/master/debian_wg_vpn.sh | bash
 2、先安装debian_wg_vpn.sh
 
 3、再安装多用户脚本wg5clients.sh
