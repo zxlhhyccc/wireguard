@@ -26,7 +26,7 @@ wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.9.140/linux-headers-4.9.14
 
 3、再安装多用户脚本wg5clients.sh
 
-wget -qO- https://raw.githubusercontent.com/zxlhhyccc/wireguard/master/debian_wg_vpn.sh | bash
+wget -qO- https://raw.githubusercontent.com/zxlhhyccc/wireguard/master/debian_wg_vpn.sh | bash（该一键脚本会先安装单用户然后自动安装多用户，不需单独下载安装多用户脚本）
 
 4、本脚本为2个用户，如果要添加N个用户，同步修改用户数和端口数，可以自定义修改端口
 
