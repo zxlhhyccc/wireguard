@@ -1,4 +1,25 @@
 # wireguard
+
+前提先更新内核到最新稳定版，可以到：
+
+http://kernel.ubuntu.com/~kernel-ppa/mainline下载稳定版本手动安装
+
+也可以使用一键脚本升级并同时开启BBR：
+
+wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/bbr.sh && chmod +x bbr.sh && bash bbr.sh
+
+注意：
+
+一键脚本升级后不带内核，需到上面的地址下载对应的版本内核手动升级：
+
+如：4.9.140版本（下载两个）：
+
+wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.9.140/linux-headers-4.9.140-0409140_4.9.140-0409140.201811231231_all.deb
+
+wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.9.140/linux-headers-4.9.140-0409140-lowlatency_4.9.140-0409140.201811231231_amd64.deb
+
+再用安装命令：dpkg -i 文件名
+
 1、wireguard多用户脚本
 
 2、先安装debian_wg_vpn.sh
