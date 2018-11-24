@@ -21,7 +21,7 @@ iptables -t nat -A POSTROUTING -s 10.80.80.0/24 -o eth0 -j MASQUERADE
 
 6、安装iptables-persistent使设置在重启后保持有效：
 
-apt-get install iptables-persistent
+apt-get install iptables-persistent（安装时提示y/n，选择：y）
 
 systemctl enable netfilter-persistent
 
