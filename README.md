@@ -55,3 +55,27 @@ netfilter-persistent save
 cd /usr/src && wget -N --no-check-certificate "https://raw.githubusercontent.com/chiakge/Linux-NetSpeed/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh
 
 设置后运行：sysctl -p
+
+说明：
+
+1、如果要升级内核，请先停止wireguard，命令：wg-quick down wg0
+
+2、内核升级后再运行：wg-quick up wg0
+
+3、升级内核可以手动也可以使用上面的脚本，使用脚本仅升级了系统未升级内核，需按照上面的步骤手动安装新的内核
+
+4、更新系统和安装新的内核后，用命令查看一下系统和内核，命令：
+
+dpkg -l|grep linux-image
+
+dpkg -l|grep linux-headers
+
+用dpkg -l|grep linux-headers查看内核可能有旧版内核，需要卸载，命令：
+
+apt-get remove --purge 旧内核名称  -y（如有提示y/n，选择n）
+
+5、其他：
+
+查看升级包：apt list --upgradable
+
+修复内核：apt --fix-broken install
