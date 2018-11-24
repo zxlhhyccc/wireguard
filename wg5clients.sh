@@ -1,0 +1,139 @@
+#!/bin/bash
+#    WireGuard VPN多用户服务端  自动配置脚本
+
+#    本脚本(WireGuard 多用户配置)一键安装短网址
+#    wget -qO- https://git.io/fpnQt | bash
+
+#    本脚本适合已经安装 WireGuard VPN 的vps
+#    如果你的vps没有安装 WireGuard ，可以用下行命令先安装
+
+#    一键安装wireguard 脚本 debian 9
+#    wget -qO- git.io/fptwc | bash
+#############################################################
+# 定义修改端口号，适合已经安装WireGuard而不想改端口
+
+port=19999
+mtu=1420
+host=$(hostname -s)
+
+ip_list=(2 3)
+
+# 获得服务器ip，自动获取
+if [ $host == "debian" ]; then
+    apt update && apt install -y curl 
+fi
+serverip=$(curl -4 icanhazip.com)
+
+# 安装二维码插件
+apt -y install qrencode
+#############################################################
+
+# 转到wg配置文件目录
+cd /etc/wireguard
+
+# 然后开始生成 密匙对(公匙+私匙)。
+wg genkey | tee sprivatekey | wg pubkey > spublickey
+wg genkey | tee cprivatekey | wg pubkey > cpublickey
+
+# 生成服务端配置文件
+cat <<EOF >wg0.conf
+[Interface]
+PrivateKey = $(cat sprivatekey)
+Address = 10.80.80.1/24 
+PostUp   = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -A FORWARD -o wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -D FORWARD -o wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+ListenPort = $port
+DNS = 8.8.8.8
+MTU = $mtu
+
+[Peer]
+PublicKey = $(cat cpublickey)
+AllowedIPs = 10.80.80.2/32
+
+EOF
+
+# 生成简洁的客户端配置
+cat <<EOF >client.conf
+[Interface]
+PrivateKey = $(cat cprivatekey)
+Address = 10.80.80.2/24
+DNS = 8.8.8.8
+MTU = $mtu
+#  PreUp =  start   .\route\routes-up.bat
+#  PostDown = start  .\route\routes-down.bat
+
+[Peer]
+PublicKey = $(cat spublickey)
+Endpoint = $serverip:$port
+AllowedIPs = 0.0.0.0/0, ::0/0
+PersistentKeepalive = 25
+
+EOF
+
+# 添加 1-9 多用户配置子程序
+for i in {1..1}
+do
+    ip=10.80.80.${ip_list[$i]}
+    wg genkey | tee cprivatekey | wg pubkey > cpublickey
+    
+    cat <<EOF >>wg0.conf
+[Peer]
+PublicKey = $(cat cpublickey)
+AllowedIPs = $ip/32
+
+EOF
+
+    cat <<EOF >client$i.conf
+[Interface]
+PrivateKey = $(cat cprivatekey)
+Address = $ip/24
+DNS = 8.8.8.8
+MTU = $mtu
+
+[Peer]
+PublicKey = $(cat spublickey)
+Endpoint = $serverip:$port
+AllowedIPs = 0.0.0.0/0, ::0/0
+PersistentKeepalive = 25
+
+EOF
+    cat /etc/wireguard/client$i.conf| qrencode -o client$i.png
+done
+
+#  vps网卡如果不是eth0，修改成实际网卡
+ni=$(ls /sys/class/net | awk {print} | head -n 1)
+if [ $ni != "eth0" ]; then
+    sed -i "s/eth0/${ni}/g"  /etc/wireguard/wg0.conf
+fi
+
+# 重启wg服务器
+wg-quick down wg0
+wg-quick up wg0
+wg
+
+cat <<EOF >wg5
+# 打包10个客户端配置，手机扫描二维码2号配置，PC使用1号配置
+next() {
+    printf "# %-70s\n" "-" | sed 's/\s/-/g'
+}
+host=$(hostname -s)
+
+cd  /etc/wireguard/
+tar cvf  wg5clients.tar  client*  wg_*
+cat /etc/wireguard/client$i.conf | qrencode -o - -t ansi256
+echo "# 手机扫描二维码2号配置，PC使用配置复制下面文本"
+
+cat /etc/wireguard/client.conf       && next
+cat /etc/wireguard/client$i.conf   && next
+
+echo "#  wg 查看有效的客户端；删除客户端使用  wg set wg0 peer xxxx_填对应IP的公钥_xxxx remove"
+echo "#  再次显示本文本使用 bash wg5 命令，通过下面2种方式获得其他的配置文件"
+echo "#  请浏览器访问   http://${serverip}:8000  下载配置文件 wg5clients.tar ，完成后请重启vps"
+echo "#  scp root@10.0.0.1:/etc/wireguard/wg5clients.tar   wg5clients.tar"
+
+# 简单的web服务器，使用后，请重启vps
+python -m SimpleHTTPServer 8000
+
+EOF
+cp wg5 ~/wg5
+bash wg5
