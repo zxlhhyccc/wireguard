@@ -32,4 +32,5 @@ netfilter-persistent save
 使用脚本进行优化（运行脚本选择优化配置即可）：
 
 cd /usr/src && wget -N --no-check-certificate "https://raw.githubusercontent.com/chiakge/Linux-NetSpeed/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh
+
 设置后运行：sysctl -p
