@@ -1,6 +1,6 @@
 # wireguard
 
-前提先更新内核到最新稳定版，可以到：
+先更新内核到最新稳定版，可以到：
 
 http://kernel.ubuntu.com/~kernel-ppa/mainline下载稳定版本手动安装
 
