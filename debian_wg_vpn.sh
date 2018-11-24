@@ -149,6 +149,6 @@ systemctl enable wg-quick@wg0
 wg
 
 # 一键 WireGuard 多用户配置共享脚本 
-wget -qO- https://github.com/zxlhhyccc/wireguard/blob/master/wg5clients.sh | bash
+wget -qO- https://raw.githubusercontent.com/zxlhhyccc/wireguard/master/wg5clients.sh | bash
 
 
