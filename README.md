@@ -82,3 +82,4 @@ apt-get remove --purge 旧内核名称  -y（如有提示y/n，选择n）
 
 6、centos7多用户脚本，默认同步安装2用户，如果需要增加用户，请按照上面要求修改
 
+wget -qO- https://raw.githubusercontent.com/zxlhhyccc/wireguard/master/centos7-wg-vpn.sh | bash
